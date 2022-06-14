@@ -19,7 +19,7 @@ public class MemberVO {
 	public void setPw(String pw) {
 		this.pw = pw;
 	}
-	
+	 
 	public String getNickname() {
 		return nickname;
 	}

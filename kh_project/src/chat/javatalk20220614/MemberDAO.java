@@ -15,7 +15,7 @@ public class MemberDAO {
 	ResultSet 			rs 		= null;
 	//////////////////////////////////////////////////////////////
 	
-	// 생성자
+	// 생성자 
 	public MemberDAO() {
 //		System.out.println(idCheck(" "));
 //		System.out.println(signUp(" ", " ", " "));
