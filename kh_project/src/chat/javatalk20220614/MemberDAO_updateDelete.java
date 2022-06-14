@@ -15,7 +15,7 @@ public class MemberDAO_updateDelete {
 	ResultSet 			rs 		= null;
 	//////////////////////////////////////////////////////////////
 	
-	// 생성자 
+	// 생성자  
 	public MemberDAO_updateDelete() {
 //		System.out.println(idCheck("tomato"));
 //		System.out.println(signUp("berry", "123", "딸기"));
