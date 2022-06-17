@@ -1,4 +1,4 @@
-package chat.javatalk20220614;
+package chat.javatalk;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -6,6 +6,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import chat.javatalk20220604.DBConnectionMgr;
+import chat.javatalk20220615.MemberVO;
 
 public class MemberDAO_updateDelete {
 	// 선언부 
@@ -20,7 +21,7 @@ public class MemberDAO_updateDelete {
 //		System.out.println(idCheck("tomato"));
 //		System.out.println(signUp("berry", "123", "딸기"));
 //		System.out.println(signIn("tomato", "123"));
-//		System.out.println(deleteMember("banana", "123"));
+//		System.out.println(deleteMember("berry", "123"));
 		
 	}
 
@@ -235,58 +236,53 @@ public class MemberDAO_updateDelete {
 	 **********************************************************/
 	// 회원 탈퇴 메소드
 	public int deleteMember(String id, String pw) {
-		System.out.println("회원탈퇴 메소드 호출 성공");
-	      
-	    String dbpw = "";  // DB상의 비밀번호를 담을 변수
-	      
+	    System.out.println("회원 탈퇴 메소드 호출 성공");
+	    
 	    int result = 0;
-	      
-	    //비밀번호 조회
+	    
+	    // pw를 입력해서 회원의 정보를 확인하기
 	    StringBuilder sql1 = new StringBuilder();
-	    sql1.append("SELECT PW FROM MEMBER       ");
-	    sql1.append(" WHERE ID = ?                ");
-	      
-	    //회원 삭제
+	    sql1.append("SELECT PW FROM MEMBER WHERE ID = ?    ");
+	    
+	    // id 어떤걸 삭제할래?
 	    StringBuilder sql2 = new StringBuilder();
-	    sql2.append("DELETE FROM MEMBER          ");
-	    sql2.append(" 	 WHERE ID = ?          ");
-
+	    sql2.append("DELETE FROM MEMBER WHERE ID = ?       ");
+	    
 	    con = DBConnectionMgr.getConnection();
 	    
 	    try {
-	   	  	con.setAutoCommit(false);
-	   	  	pstmt = con.prepareStatement(sql1.toString());
-	   	  	pstmt.setString(1, id);
-	   	  	rs = pstmt.executeQuery();
+	    	con.setAutoCommit(false);
+	    	
+	    	pstmt = con.prepareStatement(sql1.toString());
+	    	pstmt.setString(1, id);
+	        rs = pstmt.executeQuery();
 	       
-	   	  	if(rs.next()) {
-	   	  		dbpw = rs.getString("PW");
-	   	  		
-	   	  		if(dbpw.equals(pw)) { //입력된 비밀번호와 DB의 비번 비교
-	   	  			//같을경우 회원 삭제 진행
-	   	  			pstmt = con.prepareStatement(sql2.toString());
-	   	  			pstmt.setString(1, id);
-	   	  			result = pstmt.executeUpdate();
-	   	  			con.commit();
-	   	  			System.out.println("회원 탈퇴 성공");
-	   	  		} else if(!dbpw.equals(pw)){ //비밀번호 다를 경우
-	   	  			result = 0;
-	   	  			System.out.println("회원 탈퇴 실패. 비밀번호가 틀렸습니다.");
-	   	  		}
-	   	  	}
+	       if(rs.next()) {
+	          if(rs.getString("pw").equals(pw)) { // 회원이 입력한 pw와 id에 맞는 비번이 일치하면
+	             pstmt = con.prepareStatement(sql2.toString());
+	             pstmt.setString(1, id);
+	             pstmt.executeUpdate();
+	             
+	             result = 1; 
+	             System.out.println("회원 탈퇴 성공");
+	             
+	             con.commit();
+	          } else {
+	             result = -1;
+	             System.out.println("회원 탈퇴 실패");
+	             System.out.println("비밀번호를 확인해주세요.");
+	          }
+	       } else {
+	    	   System.out.println("등록된 회원이 아닙니다.");
+	       }
 	    } catch (SQLException se) {
 	       se.printStackTrace();
-	       result = -1;
-	       System.out.println("회원 탈퇴 실패");
 	    } catch (Exception e) {
 	       e.printStackTrace();
-	       System.out.println("회원 탈퇴 실패");
-	    } finally {
-	       DBConnectionMgr.freeConnection(pstmt, con);
 	    }
 	    return result;
 	}
-	
+	 
 	// 메인 메소드
 	public static void main(String[] args) {
 		new MemberDAO_updateDelete();

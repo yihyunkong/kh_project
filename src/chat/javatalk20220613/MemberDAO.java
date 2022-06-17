@@ -18,6 +18,9 @@ public class MemberDAO {
 	
 	// 생성자
 	public MemberDAO() {
+//		System.out.println(signIn("apple987", "123"));
+//		System.out.println(signUp("apple987", "123", "사과"));
+//		System.out.println(idCheck("apple987"));
 		
 	}
 
@@ -87,7 +90,7 @@ public class MemberDAO {
 			pstmt.setString(1, id);
 			rs = pstmt.executeQuery();
 			
-			if(rs.next()) { // 아이디가 있니? 
+			if(rs.next()) {
 				System.out.println(id + "은(는) 중복된 아이디 입니다. 다른 아이디를 입력하세요.");
 			} else {
 				System.out.println(id + "은(는) 사용 가능한 아이디 입니다.");

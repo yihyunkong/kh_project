@@ -9,117 +9,110 @@ import chat.javatalk20220604.DBConnectionMgr;
 import chat.javatalk20220604.MemberVO;
 
 public class MemberDAO10 {
-	Connection 			con;	// 연결
-	PreparedStatement 	pstmt; 	// 작성한 쿼리문을 전달한다.
-	ResultSet 			rs; 	// 커서
+	// 선언부
+	///////////////////////////// DB연동 /////////////////////////////
+	DBConnectionMgr		dbMgr	= new DBConnectionMgr();
+	Connection 			con;
+	PreparedStatement 	pstmt; 	
+	ResultSet 			rs; 
+	////////////////////////////////////////////////////////////////
 	
 	// 생성자
 	public MemberDAO10() {
-		System.out.println(Delete("khs"));
+		System.out.println(IDCheck("mato789"));
 	}
-	
-	// 회원가입 메소드 >> 클라이언트가 입력하는 곳 >> VO에서 값을 읽을 필요가 없다. (리턴값 int)
-	public int SignIn(String mem_id, String mem_pw, String mem_nick) { // insert
-		int result = 0; // 리턴값 result 초기화
+
+	/**************************************************
+	 * 회원가입 구현
+	 * @param mem_id	// 회원 아이디 
+	 * @param mem_pw	// 회원 비밀번호
+	 * @param mem_name	// 회원 닉네임
+	 * @return int		// 1: 회원가입 성공, 2: 회원가입 실패
+	 *************************************************/
+	// 회원가입 메소드
+	public int SignIn(String id, String pw, String name) {
+		int result = 0;
 		
-		String sql = "INSERT INTO MEMBER(mem_id, mem_pw, mem_nick) VALUES(?, ?, ?)"; // 회원가입 시 필요한 insert 쿼리문
-		
-		con = DBConnectionMgr.getConnection(); // 오라클 서버에 연결하기 
+		StringBuilder sql = new StringBuilder();
+		sql.append("INSERT INTO MEMBER(ID, PW, NAME)	");
+		sql.append("			VALUES(?, ?, ?)			");
 		
 		try {
-			// SQL문을 전달하는 객체
-			pstmt = con.prepareStatement(sql);
-			// 데이터 설정
-			pstmt.setString(1, mem_id);
-			pstmt.setString(2, mem_pw);
-			pstmt.setString(3, mem_nick);
-			// SQL문 실행하기
+			con	  = dbMgr.getConnection();
+			pstmt = con.prepareStatement(sql.toString());
+			pstmt.setString(1, id);
+			pstmt.setString(2, pw);
+			pstmt.setString(3, name);
 			pstmt.executeUpdate();
-			// 연결 해제 
-			DBConnectionMgr.freeConnection(pstmt, con); // 연결해제 할 때는 반대 순서로 닫아주기
+			
 			System.out.println("회원가입 성공");
-			result = 1; // 회원가입 성공 시 return값 1 반환
-		} catch (SQLException se) { // 동일한 아이디가 table에 존재하면 실행
-			se.getStackTrace(); 
-			System.out.println(se.getMessage());
-			System.out.println("동일한 아이디가 존재합니다.");
-			result = -1; // 회원가입 실패 시 return값 -1 반횐
-		} catch (Exception e) { // 다른 문제로 회원가입 실패 시 실행
+			result = 1;
+		} catch (Exception e) {
 			e.getStackTrace();
 			System.out.println(e.getMessage());
+			result = -1;
 			System.out.println("회원가입 실패");
-			result = -1; // 회원가입 실패 시 return값 -1 반환
+		} finally {
+			dbMgr.freeConnection(pstmt, con);
 		}
-		return result; // 회원가입 성공 시 1
+		return result;
 	}
 	
-	// ID 중복검사 메소드 - 아이디가 있니 or 없니? >> MemberVO에서 확인해보자 >> return값을 MemberVO로 받아오자
-	private MemberVO IDCheck(String mem_id) {
-		MemberVO mvo = null; // 리턴값 초기화하기
+	// ID 중복검사 메소드
+	private MemberVO IDCheck(String id) {
+		MemberVO mvo = null;
 		
-		// ID 중복검사 시 필요한 select 쿼리문
-		String sql = "SELECT mem_id FROM MEMBER WHERE mem_id = ?";
-		
-		// 오라클 서버에 연결하기
+		StringBuilder sql = new StringBuilder();
+		sql.append("SELECT ID	 	");
+		sql.append("  FROM MEMBER	");
+		sql.append(" WHERE ID = ?	");
+
 		con = DBConnectionMgr.getConnection();
 		
 		try {
-			// SQL문을 전달하는 객체
-			pstmt = con.prepareStatement(sql);
-			// 데이터 설정
-			pstmt.setString(1, mem_id);
-			// rs로 일치하는 정보가 있는지 확인 실행
+			pstmt = con.prepareStatement(sql.toString());
+			pstmt.setString(1, id);
 			rs = pstmt.executeQuery();
 			
-			if(rs.next()) { // 입력한 아이디가 존재한다면 
-				mvo = new MemberVO(mem_id); // 입력한 아이디를 mvo에 넣기 (이 부분은 사실 모름.. 구글링함) 리턴값을 mvo로 받기 위해.. MemberVO에서 읽은 값과 비교?
-				System.out.println(mem_id + "는 중복된 아이디 입니다. 다른 아이디를 입력해주세요."); // 입력한 아이디를 사용할 수 없음
-			} else { // 입력한 아이디가 존재하지 않는다면 
-				System.out.println(mem_id + "는 사용가능한 아이디 입니다.");
+			if(rs.next()) { 														// 입력한 아이디가 존재한다면 
+				System.out.println(id + "는 중복된 아이디 입니다. 다른 아이디를 입력해주세요.");
+			} else { 																// 입력한 아이디가 존재하지 않는다면 
+				System.out.println(id + "는 사용가능한 아이디 입니다.");
 			}
-			// 연결해제
-			DBConnectionMgr.freeConnection(rs, pstmt, con);
 		} catch (Exception e) {
 			e.getStackTrace();
 			System.out.println("아이디 조회 실패");
+		} finally {
+			DBConnectionMgr.freeConnection(rs, pstmt, con);
 		}
 		return mvo;
 	}
 	
 	// 로그인 메소드
-	public int Login(String mem_id, String mem_pw) {
-		
-		// 리턴 받을 변수 선언해주자
-		int result = 0; // 아이디가 존재하지 않을 때 리턴값 출력		
+	public int Login(String id, String pw) {
+		int result = 0;	
 
-		// sql 쿼리문을 받아줄거야
 		StringBuilder sql = new StringBuilder();
+		sql.append("SELECT *									");
+		sql.append("  FROM (									");
+		sql.append("		SELECT 							    ");
+		sql.append("		   CASE WHEN ID = ? THEN			");
+		sql.append("		       CASE WHEN PW = ? THEN '1'   	");
+		sql.append("		       ELSE '-1'			    	");
+		sql.append("		       END							");
+		sql.append("		   ELSE '0'							");
+		sql.append("		   END LOGIN 						");
+		sql.append("		FROM MEMBER							");
+		sql.append("		ORDER BY LOGIN DESC					");
+		sql.append("	   )									");
+		sql.append("WHERE ROWNUM = 1							");
 		
-		// sql에서 아이디와 비밀번호가 일치하는지 확인하는 쿼리문을 받아오자
-		sql.append("select *											");
-		sql.append("  from (											");
-		sql.append("		select 									    ");
-		sql.append("		       case when mem_id = ? then			");
-		sql.append("		            case when mem_pw = ? then '1'   ");
-		sql.append("		            else '-1'					    ");
-		sql.append("		            end								");
-		sql.append("		       else '0'								");
-		sql.append("		       end login							");
-		sql.append("		from member									");
-		sql.append("		order by login desc							");
-		sql.append("	   )											");
-		sql.append("where rownum = 1									");
-		
-		// 오라클 서버에 연결하기
-		con = DBConnectionMgr.getConnection();
+		con	  = DBConnectionMgr.getConnection();
 		
 		try {
-			// SQL문을 전달하는 객체
 			pstmt = con.prepareStatement(sql.toString());
-			// 데이터 설정
-			pstmt.setString(1, mem_id);
-			pstmt.setString(2, mem_pw);
-			// rs로 일치하는 정보가 있는지 확인 실행 >> select 처리
+			pstmt.setString(1, id);
+			pstmt.setString(2, pw);
 			rs = pstmt.executeQuery();
 			
 			if(rs.next()) {
@@ -146,7 +139,7 @@ public class MemberDAO10 {
 	public int Edit(String mem_pw, String mem_nick, String mem_id) {
 		int result = 0; // 성공 및 실패 시 반환받을 값 초기화 
 		
-		String sql = "UPDATE member SET mem_pw = ?, mem_nick = ? WHERE mem_id = ?";
+		String sql = "UPDATE member_p SET mem_pw = ?, mem_nick = ? WHERE mem_id = ?";
 		
 		con = DBConnectionMgr.getConnection();
 		
@@ -178,7 +171,7 @@ public class MemberDAO10 {
 	public int Delete(String mem_id) {
 		int result = 0;
 		
-		String sql = "DELETE FROM member WHERE mem_id  = ?";
+		String sql = "DELETE FROM member_p WHERE mem_id  = ?";
 		
 		con = DBConnectionMgr.getConnection();
 		

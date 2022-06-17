@@ -3,11 +3,13 @@ package chat.javatalk20220611;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
+
+import chat.javatalk20220604.DBConnectionMgr;
 
 public class MemberDAO {
 	// 선언부 
 	/////////////////////////// DB 연동 ///////////////////////////
-	DBConnectionMgr 	dbMgr 	= new DBConnectionMgr();
 	
 	Connection 			con 	= null;
 	PreparedStatement 	pstmt 	= null;
@@ -16,9 +18,9 @@ public class MemberDAO {
 	
 	// 생성자
 	public MemberDAO() {
-//		System.out.println(signUp("apple12", "123", "사과2"));
+//		System.out.println(signUp("apple17892", "123", "사과2"));
 //		System.out.println(idCheck("apple12"));
-		System.out.println(signIn("apple123", "123"));
+		System.out.println(signIn("apple17892", "123"));
 	}
 
 	/**********************************************************
@@ -38,9 +40,10 @@ public class MemberDAO {
 		sql.append("INSERT INTO MEMBER(ID, PW, NAME) ");
 		sql.append("		    VALUES(?, ?, ?)      ");
 		
+		con = DBConnectionMgr.getConnection();
+		
 		try {
-			con 	= DBConnectionMgr.getConnection();
-			pstmt 	= con.prepareStatement(sql.toString());
+			pstmt = con.prepareStatement(sql.toString());
 			pstmt.setString(1, id);
 			pstmt.setString(2, pw);
 			pstmt.setString(3, name);
@@ -49,8 +52,7 @@ public class MemberDAO {
 			System.out.println("회원가입 성공");
 			result = 1;
 		} catch (Exception e) {
-			e.getStackTrace();
-			
+			e.printStackTrace();
 			System.out.println("회원가입 실패");
 			result = -1;
 		} finally {
@@ -77,8 +79,9 @@ public class MemberDAO {
 		sql.append("  FROM MEMBER ");
 		sql.append(" WHERE ID = ? ");
 		
+		con = DBConnectionMgr.getConnection();
+		
 		try {
-			con = DBConnectionMgr.getConnection();
 			pstmt = con.prepareStatement(sql.toString());
 			pstmt.setString(1, id);
 			rs = pstmt.executeQuery();
@@ -89,7 +92,7 @@ public class MemberDAO {
 				System.out.println(id + "은(는) 사용 가능한 아이디 입니다.");
 			}
 		} catch (Exception e) {
-			e.getStackTrace();
+			e.printStackTrace();
 		} finally {
 			DBConnectionMgr.freeConnection(rs, pstmt, con);
 		}
@@ -122,16 +125,17 @@ public class MemberDAO {
 		sql.append("		  FROM MEMBER 								");
 		sql.append("		ORDER BY LOGIN DESC							");
 		sql.append("	   )											");
-		sql.append(" WHERE ROWNUM = '1'									");
+		sql.append(" WHERE ROWNUM = 1									");
+		
+		con = DBConnectionMgr.getConnection();
 		
 		try {
-			con = DBConnectionMgr.getConnection();
 			pstmt = con.prepareStatement(sql.toString());
 			pstmt.setString(1, id);
 			pstmt.setString(2, pw);
 			rs = pstmt.executeQuery();
 			
-			while(rs.next()) {
+			if(rs.next()) {
 				if(pw.equals(rs.getString("pw"))) {
 					result = 1;
 					System.out.println("로그인 성공");
@@ -139,11 +143,13 @@ public class MemberDAO {
 					result = -1;
 					System.out.println("아이디와 비밀번호가 일치하지 않습니다.");
 				}
+			} else {
+				System.out.println("등록되지 않은 회원입니다.");
 			}
+		} catch (SQLException se) {
+			se.printStackTrace();
 		} catch (Exception e) {			
-			e.getStackTrace();
-			System.out.println(e.getMessage());
-			
+		 	e.printStackTrace();
 			System.out.println("로그인 실패");
 			result = -1;
 		} finally {
