@@ -1,0 +1,11 @@
+Server Ready.........
+client info:Socket[addr=/127.0.0.1,port=62417,localport=3002]
+100#null
+null님이 입장하였습니다.
+201#null#안녕??
+201#null#오오오 신기한데
+201#null#오오오오
+202#null#hyun#null의 대화명이 hyun으로 변경되었습니다.
+201#null#dhddhhdhdhdhd
+201#null#오오오 신기한데
+201#null#오 잘만들었는데 

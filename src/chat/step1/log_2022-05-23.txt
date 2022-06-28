@@ -1,0 +1,11 @@
+Server Ready.........
+client info:Socket[addr=/127.0.0.1,port=63639,localport=3002]
+100#test
+test님이 입장하였습니다.
+201#test#오늘 스터디 할까?
+client info:Socket[addr=/127.0.0.1,port=63650,localport=3002]
+100#nacho
+nacho님이 입장하였습니다.
+201#nacho#좋아
+201#test#저녁 6시 어때?
+201#nacho#저녁 먹고 6시반 하자
